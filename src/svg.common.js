@@ -14,6 +14,7 @@ exports.srcProperty = new view_1.Property({ name: SRC, defaultValue: undefined, 
 exports.imageSourceProperty = new view_1.Property({ name: IMAGE_SOURCE, defaultValue: undefined });
 exports.isLoadingProperty = new view_1.Property({ name: ISLOADING, defaultValue: false });
 exports.loadModeProperty = new view_1.Property({ name: LOAD_MODE, defaultValue: SYNC });
+exports.onSvgElementProperty = new view_1.Property({ name: 'onSvgElement', defaultValue: null, valueConverter: function (v) { return eval(v); } });
 var SVGImage = (function (_super) {
     __extends(SVGImage, _super);
     function SVGImage(options) {
@@ -37,6 +38,7 @@ var SVGImage = (function (_super) {
                 _this.isLoading = false;
             };
             if (utils.isDataURI(value)) {
+                console.log('dataURI');
                 var base64Data = value.split(",")[1];
                 if (types.isDefined(base64Data)) {
                     if (this.loadMode === SYNC) {
@@ -48,8 +50,10 @@ var SVGImage = (function (_super) {
                     }
                 }
             }
-            else if (definition.isFileOrResourcePath(value)) {
+            else if (utils.isFileOrResourcePath(value)) {
+                console.log('file or resource');
                 if (value.indexOf(utils.RESOURCE_PREFIX) === 0) {
+                    console.log('resource');
                     var resPath = value.substr(utils.RESOURCE_PREFIX.length);
                     if (this.loadMode === SYNC) {
                         source.loadFromResource(resPath);
@@ -61,6 +65,7 @@ var SVGImage = (function (_super) {
                     }
                 }
                 else {
+                    console.log('file');
                     if (this.loadMode === SYNC) {
                         source.loadFromFile(value);
                         imageLoaded();
@@ -72,6 +77,7 @@ var SVGImage = (function (_super) {
                 }
             }
             else {
+                console.log('else');
                 this.imageSource = null;
                 definition.fromUrl(value).then(function (r) {
                     if (_this["_url"] === value) {
@@ -141,3 +147,4 @@ exports.srcProperty.register(SVGImage);
 exports.imageSourceProperty.register(SVGImage);
 exports.loadModeProperty.register(SVGImage);
 exports.isLoadingProperty.register(SVGImage);
+exports.onSvgElementProperty.register(SVGImage);

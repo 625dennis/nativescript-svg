@@ -33,6 +33,11 @@ declare var com: any;
 declare var java: any;
 declare var org: any;
 
+var Sharp: any = com.pixplicity.sharp.Sharp;
+var OnSvgElementListener: any = com.pixplicity.sharp.OnSvgElementListener;
+var Paint: any = android.graphics.Paint;
+var Color: any = android.graphics.Color;
+
 export class ImageSourceSVG implements svg.ImageSourceSVG {
     private nativeView: any;
 
@@ -46,7 +51,7 @@ export class ImageSourceSVG implements svg.ImageSourceSVG {
             var identifier: number = res.getIdentifier(name, 'drawable', utils.ad.getApplication().getPackageName());
             if (0 < identifier) {
                 // Load SVG
-                this.nativeView = new com.larvalabs.svgandroid.SVGParser.getSVGFromResource(res, identifier);
+                this.nativeView = new Sharp.loadResource(res, identifier);
             }
         }
 
@@ -67,7 +72,8 @@ export class ImageSourceSVG implements svg.ImageSourceSVG {
             fileName = fs.path.join(fs.knownFolders.currentApp().path, fileName.replace("~/", ""));
         }
 
-        this.nativeView = new com.larvalabs.svgandroid.SVGParser.getSVGFromInputStream(new java.io.FileInputStream(new java.io.File(fileName)));
+        this.nativeView = new Sharp.loadInputStream(new java.io.FileInputStream(new java.io.File(fileName)));
+        console.log(this.nativeView)
         return this.nativeView != null;
     }
 
@@ -78,7 +84,7 @@ export class ImageSourceSVG implements svg.ImageSourceSVG {
     }
 
     public loadFromData(data: any): boolean {
-        this.nativeView = new com.larvalabs.svgandroid.SVGParser.getSVGFromString(data);
+        this.nativeView = new Sharp.loadString(data);
         return this.nativeView != null;
     }
 
@@ -90,7 +96,7 @@ export class ImageSourceSVG implements svg.ImageSourceSVG {
 
     public loadFromBase64(source: string): boolean {
         var bytes = android.util.Base64.decode(source, android.util.Base64.DEFAULT);
-        this.nativeView = new com.larvalabs.svgandroid.SVGParser.getSVGFromString(new java.lang.String(bytes));
+        this.nativeView = new Sharp.loadString(new java.lang.String(bytes));
         return this.nativeView != null;
     }
 
@@ -104,7 +110,7 @@ export class ImageSourceSVG implements svg.ImageSourceSVG {
     public loadFromUrl(url: string): boolean {
         ensureHttp();
         var result = http.getString(url);
-        return this.setNativeSource(new com.larvalabs.svgandroid.SVGParser.getSVGFromString(result));
+        return this.setNativeSource(new Sharp.loadString(result));
         //var httpUrl = new java.net.URL(url);
         //var urlConnection = httpUrl.openConnection();
         //return this.setNativeSource(new com.larvalabs.svgandroid.SVGParser.getSVGFromInputStream(urlConnection.getInputStream()));
@@ -153,6 +159,8 @@ export class ImageSourceSVG implements svg.ImageSourceSVG {
 
 export class SVGImage extends common.SVGImage {
     private _drawable: android.graphics.drawable.PictureDrawable;
+    private _svg: any;
+    private _onSvgElement: any;
 
     constructor() {
         super();
@@ -162,10 +170,49 @@ export class SVGImage extends common.SVGImage {
         return new org.nativescript.widgets.ImageView(this._context);
     }
 
+    private tryToSetSvgProperties() {
+      if(!this._svg) {
+        return;
+      }
+
+      if(this._onSvgElement) {
+        var onSvgElement = this._onSvgElement
+
+        console.log('trying to set onSvgElement');
+        console.log(this._svg.setOnElementListener);
+        this._svg.setOnElementListener(new OnSvgElementListener({
+          onSvgElement(id, element, elementBounds, canvas, canvasBounds, paint) {
+            var newElementInfo = onSvgElement(id) || {};
+            var { color } = newElementInfo;
+
+            if(color && paint && paint.getStyle() == Paint.Style.FILL) {
+              paint.setColor(Color.argb(color.a, color.r, color.g, color.b));
+            }
+
+            return element;
+          },
+          onSvgStart() {},
+          onSvgEnd() {},
+          onSvgElementDrawn() {}
+        }));
+
+        // this.nativeView.setLayerType(android.view.View.LAYER_TYPE_SOFTWARE, null);
+        // this._drawable = this._svg.getDrawable(this.nativeView);
+        // this.nativeView.setImageDrawable(this._drawable);
+
+        this._svg.getSharpPicture(new Sharp.PictureCallback({
+          onPictureReady: picture => {
+            this._drawable = picture.getDrawable(this.nativeView);
+            this.nativeView.setImageDrawable(this._drawable);
+          }
+        }));
+      }
+    }
+
     public _setNativeImage(nativeImage: any) {
-        this._drawable = nativeImage.nativeView.createPictureDrawable();
-        this.nativeView.setLayerType(android.view.View.LAYER_TYPE_SOFTWARE, null);
-        this.nativeView.setImageDrawable(this._drawable);
+      console.log(Object.keys(nativeImage.nativeView));
+        this._svg = nativeImage.nativeView;
+        this.tryToSetSvgProperties();
     }
 
     [common.imageSourceProperty.setNative](value: any) {
@@ -176,5 +223,20 @@ export class SVGImage extends common.SVGImage {
         }
 
         this._setNativeImage(image);
+    }
+
+    public _setOnSvgElement(onSvgElement : any) {
+      this._onSvgElement = onSvgElement;
+      this.tryToSetSvgProperties();
+    }
+
+    [common.onSvgElementProperty.setNative](value : any) {
+      console.log('onSvgElement', value);
+
+      if(!value) {
+        return;
+      }
+
+      this._setOnSvgElement(value);
     }
 }
