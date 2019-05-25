@@ -16,15 +16,26 @@ export const srcProperty = new Property<SVGImage, boolean>({ name: SRC, defaultV
 export const imageSourceProperty = new Property<SVGImage, definition.ImageSourceSVG>({ name: IMAGE_SOURCE, defaultValue: undefined });
 export const isLoadingProperty = new Property<SVGImage, boolean>({ name: ISLOADING, defaultValue: false });
 export const loadModeProperty = new Property<SVGImage, string>({ name: LOAD_MODE, defaultValue: SYNC });
-export const onSvgElementProperty = new Property<SVGImage, any>({ name: 'onSvgElement', defaultValue: null, valueConverter: v => eval(v) });
+export const onSvgElementProperty = new Property<SVGImage, any>({ name: 'honSvgElement', defaultValue: null, valueConverter: v => eval(v) });
 
-export class SVGImage extends View implements definition.SVGImage {
+/**
+* Provides common options for creating a animation
+*/
+export interface Options {
+
+    /**
+     * Gets or sets the URL of the svg
+     */
+    src: string;
+}
+
+export class SVGImage extends View {
     src: any;
     imageSource: definition.ImageSourceSVG;
     isLoading: boolean;
     loadMode: "sync" | "async";
 
-    constructor(options?: definition.Options) {
+    constructor(options?: Options) {
         // super(options);
         super();
     }
@@ -55,7 +66,6 @@ export class SVGImage extends View implements definition.SVGImage {
             }
             //WRONG IMplementation, it can't load data uri, just base xml encode
             if (utils.isDataURI(value)) {
-              console.log('dataURI')
                 var base64Data = value.split(",")[1];
                 if (types.isDefined(base64Data)) {
                     if (this.loadMode === SYNC) {
@@ -66,9 +76,7 @@ export class SVGImage extends View implements definition.SVGImage {
                     }
                 }
             } else if (utils.isFileOrResourcePath(value)) {
-              console.log('file or resource')
                 if (value.indexOf(utils.RESOURCE_PREFIX) === 0) {
-                  console.log('resource')
                     let resPath = value.substr(utils.RESOURCE_PREFIX.length);
                     if (this.loadMode === SYNC) {
                         source.loadFromResource(resPath);
@@ -78,7 +86,6 @@ export class SVGImage extends View implements definition.SVGImage {
                         source.fromResource(resPath).then(imageLoaded);
                     }
                 } else {
-                  console.log('file')
                     if (this.loadMode === SYNC) {
                         source.loadFromFile(value);
                         imageLoaded();
@@ -88,15 +95,9 @@ export class SVGImage extends View implements definition.SVGImage {
                     }
                 }
             } else {
-              console.log('else')
-                this.imageSource = null;
-                definition.fromUrl(value).then((r) => {
-                    if (this["_url"] === value) {
-                        this.imageSource = r;
-                        // this._setValue(SVGImage.isLoadingProperty, false);
-                        this.isLoading = false;
-                    }
-                });
+                this.imageSource = fromUrl(value)
+                // this._setValue(SVGImage.isLoadingProperty, false);
+                this.isLoading = false;
             }
         } else if (value instanceof definition.ImageSourceSVG) {
             // Support binding the imageSource trough the src property
@@ -105,7 +106,7 @@ export class SVGImage extends View implements definition.SVGImage {
             this.isLoading = false;
 
         } else {
-            this.imageSource = definition.fromNativeSource(value);
+            this.imageSource = fromNativeSource(value);
             // this._setValue(SVGImage.isLoadingProperty, false);
             this.isLoading = false;
         }

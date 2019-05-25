@@ -147,7 +147,6 @@ var SVGImage = (function (_super) {
         if (this._onSvgElement) {
             var onSvgElement = this._onSvgElement;
             console.log('trying to set onSvgElement');
-            console.log(this._svg.setOnElementListener);
             this._svg.setOnElementListener(new OnSvgElementListener({
                 onSvgElement: function (id, element, elementBounds, canvas, canvasBounds, paint) {
                     var newElementInfo = onSvgElement(id) || {};
@@ -163,6 +162,7 @@ var SVGImage = (function (_super) {
             }));
             this._svg.getSharpPicture(new Sharp.PictureCallback({
                 onPictureReady: function (picture) {
+                    console.log(picture);
                     _this._drawable = picture.getDrawable(_this.nativeView);
                     _this.nativeView.setImageDrawable(_this._drawable);
                 }
@@ -170,7 +170,6 @@ var SVGImage = (function (_super) {
         }
     };
     SVGImage.prototype._setNativeImage = function (nativeImage) {
-        console.log(Object.keys(nativeImage.nativeView));
         this._svg = nativeImage.nativeView;
         this.tryToSetSvgProperties();
     };
@@ -186,7 +185,6 @@ var SVGImage = (function (_super) {
         this.tryToSetSvgProperties();
     };
     SVGImage.prototype[common.onSvgElementProperty.setNative] = function (value) {
-        console.log('onSvgElement', value);
         if (!value) {
             return;
         }

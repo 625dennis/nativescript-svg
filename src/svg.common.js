@@ -14,7 +14,7 @@ exports.srcProperty = new view_1.Property({ name: SRC, defaultValue: undefined, 
 exports.imageSourceProperty = new view_1.Property({ name: IMAGE_SOURCE, defaultValue: undefined });
 exports.isLoadingProperty = new view_1.Property({ name: ISLOADING, defaultValue: false });
 exports.loadModeProperty = new view_1.Property({ name: LOAD_MODE, defaultValue: SYNC });
-exports.onSvgElementProperty = new view_1.Property({ name: 'onSvgElement', defaultValue: null, valueConverter: function (v) { return eval(v); } });
+exports.onSvgElementProperty = new view_1.Property({ name: 'honSvgElement', defaultValue: null, valueConverter: function (v) { return eval(v); } });
 var SVGImage = (function (_super) {
     __extends(SVGImage, _super);
     function SVGImage(options) {

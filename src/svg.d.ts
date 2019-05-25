@@ -33,19 +33,7 @@ export class SVGImage extends View {
      * - **sync** *(default)* - blocks the UI if necessary to display immediately, good for small icons.
      * - **async** - will try to load in the background, may appear with short delay, good for large images.
      */
-    loadMode: string; // "sync" | "async";        
-}
-
-
-/**
-* Provides common options for creating a animation
-*/
-export interface Options {
-
-    /**
-     * Gets or sets the URL of the svg
-     */
-    src: string;
+    loadMode: string; // "sync" | "async";
 }
 
 /**
@@ -140,7 +128,7 @@ export class ImageSourceSVG {
      * Converts the image to base64 encoded string, using the provided image format and quality.
      * @param format The format (encoding) of the image.
      */
-    toBase64String(format: string): string;
+    toBase64String(format: Array<number>): string;
 }
 
 /**
@@ -178,7 +166,7 @@ export function fromNativeSource(source: any): ImageSourceSVG;
  * Downloads the image from the provided Url and creates a new ImageSourceSVG instance from it.
  * @param url The link to the remote image object. This operation will download and decode the image.
  */
-export function fromUrl(url: string): Promise<ImageSourceSVG>;
+export function fromUrl(url: string): ImageSourceSVG;
 
 /**
  * Creates a new ImageSourceSVG instance and loads it from the specified local file or resource(if spexified with "res://" prefix)
