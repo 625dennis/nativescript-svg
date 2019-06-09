@@ -16,7 +16,7 @@ You use it in the same way you use Image source.
 
 Android Library | iOS CocoaPod
 --------------- | ------------
-[pents90 svg-android](https://github.com/pents90/svg-android) | [SVGKit by SVGKit](https://github.com/SVGKit/SVGKit)
+[Pixplicty sharp](https://github.com/Pixplicity/sharp) | [SVGKit by SVGKit](https://github.com/SVGKit/SVGKit)
 
 ** there are limitations: **
     - saveToFile ins't working
