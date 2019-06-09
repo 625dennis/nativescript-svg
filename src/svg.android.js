@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var common = require("./svg.common");
 var types = require("tns-core-modules/utils/types");
+var common = require("./svg.common");
+var svg_element_android_1 = require("./svg-element.android");
 var http;
 function ensureHttp() {
     if (!http) {
@@ -23,8 +24,6 @@ function ensureFS() {
 }
 var Sharp = com.pixplicity.sharp.Sharp;
 var OnSvgElementListener = com.pixplicity.sharp.OnSvgElementListener;
-var Paint = android.graphics.Paint;
-var Color = android.graphics.Color;
 var ImageSourceSVG = (function () {
     function ImageSourceSVG() {
     }
@@ -53,7 +52,6 @@ var ImageSourceSVG = (function () {
             fileName = fs.path.join(fs.knownFolders.currentApp().path, fileName.replace("~/", ""));
         }
         this.nativeView = new Sharp.loadInputStream(new java.io.FileInputStream(new java.io.File(fileName)));
-        console.log(this.nativeView);
         return this.nativeView != null;
     };
     ImageSourceSVG.prototype.fromFile = function (path) {
@@ -104,14 +102,13 @@ var ImageSourceSVG = (function () {
     ImageSourceSVG.prototype.toBase64String = function (format) {
         if (!this.nativeView) {
             return null;
-            ;
         }
         return android.util.Base64.encodeToString(format, android.util.Base64.DEFAULT);
     };
     Object.defineProperty(ImageSourceSVG.prototype, "height", {
         get: function () {
             if (this.nativeView) {
-                return this.nativeView.getPitcture().getHeight();
+                return this.nativeView.getPicture().getHeight();
             }
             return NaN;
         },
@@ -121,7 +118,7 @@ var ImageSourceSVG = (function () {
     Object.defineProperty(ImageSourceSVG.prototype, "width", {
         get: function () {
             if (this.nativeView) {
-                return this.nativeView.getPitcture().getWidth();
+                return this.nativeView.getPicture().getWidth();
             }
             return NaN;
         },
@@ -134,26 +131,33 @@ exports.ImageSourceSVG = ImageSourceSVG;
 var SVGImage = (function (_super) {
     __extends(SVGImage, _super);
     function SVGImage() {
-        return _super.call(this) || this;
+        var _this = _super.call(this) || this;
+        _this._elements = [];
+        return _this;
     }
     SVGImage.prototype.createNativeView = function () {
-        return new org.nativescript.widgets.ImageView(this._context);
+        return new android.widget.ImageView(this._context);
     };
+    Object.defineProperty(SVGImage.prototype, "android", {
+        get: function () {
+            return this.nativeView;
+        },
+        enumerable: true,
+        configurable: true
+    });
     SVGImage.prototype.tryToSetSvgProperties = function () {
         var _this = this;
         if (!this._svg) {
             return;
         }
         if (this._onSvgElement) {
-            var onSvgElement = this._onSvgElement;
-            console.log('trying to set onSvgElement');
+            var self = this;
             this._svg.setOnElementListener(new OnSvgElementListener({
                 onSvgElement: function (id, element, elementBounds, canvas, canvasBounds, paint) {
-                    var newElementInfo = onSvgElement(id) || {};
-                    var color = newElementInfo.color;
-                    if (color && paint && paint.getStyle() == Paint.Style.FILL) {
-                        paint.setColor(Color.argb(color.a, color.r, color.g, color.b));
-                    }
+                    var elementView = new svg_element_android_1.SVGElement(id, paint);
+                    self._elements.push(elementView);
+                    self._addView(elementView);
+                    elementView.onSvgElement();
                     return element;
                 },
                 onSvgStart: function () { },
@@ -162,7 +166,6 @@ var SVGImage = (function (_super) {
             }));
             this._svg.getSharpPicture(new Sharp.PictureCallback({
                 onPictureReady: function (picture) {
-                    console.log(picture);
                     _this._drawable = picture.getDrawable(_this.nativeView);
                     _this.nativeView.setImageDrawable(_this._drawable);
                 }

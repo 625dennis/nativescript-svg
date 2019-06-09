@@ -38,7 +38,6 @@ var SVGImage = (function (_super) {
                 _this.isLoading = false;
             };
             if (utils.isDataURI(value)) {
-                console.log('dataURI');
                 var base64Data = value.split(",")[1];
                 if (types.isDefined(base64Data)) {
                     if (this.loadMode === SYNC) {
@@ -51,9 +50,7 @@ var SVGImage = (function (_super) {
                 }
             }
             else if (utils.isFileOrResourcePath(value)) {
-                console.log('file or resource');
                 if (value.indexOf(utils.RESOURCE_PREFIX) === 0) {
-                    console.log('resource');
                     var resPath = value.substr(utils.RESOURCE_PREFIX.length);
                     if (this.loadMode === SYNC) {
                         source.loadFromResource(resPath);
@@ -65,7 +62,6 @@ var SVGImage = (function (_super) {
                     }
                 }
                 else {
-                    console.log('file');
                     if (this.loadMode === SYNC) {
                         source.loadFromFile(value);
                         imageLoaded();
@@ -77,14 +73,8 @@ var SVGImage = (function (_super) {
                 }
             }
             else {
-                console.log('else');
-                this.imageSource = null;
-                definition.fromUrl(value).then(function (r) {
-                    if (_this["_url"] === value) {
-                        _this.imageSource = r;
-                        _this.isLoading = false;
-                    }
-                });
+                this.imageSource = fromUrl(value);
+                this.isLoading = false;
             }
         }
         else if (value instanceof definition.ImageSourceSVG) {
@@ -92,7 +82,7 @@ var SVGImage = (function (_super) {
             this.isLoading = false;
         }
         else {
-            this.imageSource = definition.fromNativeSource(value);
+            this.imageSource = fromNativeSource(value);
             this.isLoading = false;
         }
     };
