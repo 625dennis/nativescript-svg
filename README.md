@@ -5,16 +5,18 @@
 # NativeScript SVG
 
 ## Install
-`tns plugin add nativescript-svg`
+`tns plugin add 625dennis/nativescript-svg`
 
 
 ### Usage
+
+** Currently only supports android **
 
 You use it in the same way you use Image source.
 
 Android Library | iOS CocoaPod
 --------------- | ------------
-[pents90 svg-android](https://github.com/pents90/svg-android) | [SVGKit by SVGKit](https://github.com/SVGKit/SVGKit)
+[Pixplicty sharp](https://github.com/Pixplicity/sharp) | [SVGKit by SVGKit](https://github.com/SVGKit/SVGKit)
 
 ** there are limitations: **
     - saveToFile ins't working
@@ -88,17 +90,22 @@ Since ver 1.1 Implement a similar image tag to be used as for example:
 ```
 
 ### Roadmap
-ver 1.6 implement an SVGImage tag that can support svg tags.
+ver 2.2 implement an SVGImage tag that can support svg tags.
 ```
 <!-- this is more complicated to implement, pending to be implemented -->
     <svg:SVGImage width="100" height="100"> 
         <circle cx="50" cy="50" r="40" stroke="green" stroke-width="4" fill="yellow" />
     </svg:SVGImage>
 ```
-ver 1.5 Change api dependency from pents90/svg-android to Pixplicity/sharp
+
+ver 2.1 implement styling via class
+
+ver 2.0 support for iOS
 
 
 ### Release note
+v2.0.0-alpha -- Add support for styling SVG elements with css via id
+
 v1.3.7 -- Fix missing .JS file in the npm package build because npmignore file in the wrong place
 
 v1.3.5 -- Fix missing .JS file in the npm package build
