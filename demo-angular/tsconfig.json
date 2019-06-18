@@ -26,5 +26,9 @@
         "node_modules",
         "platforms",
         "**/*.aot.ts"
+    ],
+    "include": [
+        "**/*.ts",
+        "../src/**/*.ts"
     ]
 }

@@ -17,7 +17,7 @@ SVGImage {
   border-style: solid;
 }
 
-SVGElement {
-  fill: #FF0000;
+.nativescript #nativescript-icon {
+  fill: #00FF00;
   font-size: 12;
 }

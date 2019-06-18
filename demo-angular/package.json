@@ -6,7 +6,7 @@
   "nativescript": {
     "id": "org.nativescript.ngtest",
     "tns-android": {
-      "version": "5.3.2"
+      "version": "5.3.0"
     }
   },
   "dependencies": {

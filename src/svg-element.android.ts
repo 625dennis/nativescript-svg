@@ -5,7 +5,6 @@ import Paint = android.graphics.Paint;
 export const fillProperty = new CssProperty<Style, Color>({
   name: 'fill',
   cssName: 'fill',
-  defaultValue: new Color('#0000FF'),
   valueConverter: v => new Color(v)
 });
 

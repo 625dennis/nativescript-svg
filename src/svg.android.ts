@@ -44,8 +44,6 @@ export class ImageSourceSVG implements svg.ImageSourceSVG {
     public loadFromResource(name: string): boolean {
         this.nativeView = null;
 
-
-
         ensureUtils();
 
         var res = utils.ad.getApplicationContext().getResources();
@@ -159,18 +157,6 @@ export class ImageSourceSVG implements svg.ImageSourceSVG {
 }
 
 export class SVGImage extends common.SVGImage {
-  private _drawable?: android.graphics.drawable.PictureDrawable;
-  private _svg: any;
-  private _onSvgElement: any;
-
-  private _elements: Array<SVGElement>;
-
-  constructor() {
-    super();
-
-    this._elements = [];
-  }
-
   public createNativeView() {
     return new android.widget.ImageView(this._context);
   }
@@ -179,43 +165,30 @@ export class SVGImage extends common.SVGImage {
     return this.nativeView;
   }
 
-  private tryToSetSvgProperties() {
-    if(!this._svg) {
-      return;
-    }
-
-    if(this._onSvgElement) {
-      var self = this;
-
-      this._svg.setOnElementListener(new OnSvgElementListener({
-        onSvgElement(id: string, element: any, elementBounds, canvas, canvasBounds, paint: Paint) {
-          var elementView = new SVGElement(id, paint);
-          self._elements.push(elementView);
-
-          self._addView(elementView);
-
-          elementView.onSvgElement();
-
-          return element;
-        },
-        onSvgStart() {},
-        onSvgEnd() {},
-        onSvgElementDrawn() {}
-      }));
-
-      this._svg.getSharpPicture(new Sharp.PictureCallback({
-        onPictureReady: picture => {
-          this._drawable = picture.getDrawable(this.nativeView);
-          this.nativeView.setImageDrawable(this._drawable);
-        }
-      }));
-    }
-  }
-
   public _setNativeImage(nativeImage: any) {
-    this._svg = nativeImage.nativeView;
+    var svg = nativeImage.nativeView;
+    var self = this;
 
-    this.tryToSetSvgProperties();
+    svg.setOnElementListener(new OnSvgElementListener({
+      onSvgElement(id: string, element: any, elementBounds, canvas, canvasBounds, paint: Paint) {
+        var elementView = new SVGElement(id, paint);
+        self.addChild(elementView);
+
+        elementView.onSvgElement();
+
+        return element;
+      },
+      onSvgStart() {},
+      onSvgEnd() {},
+      onSvgElementDrawn() {}
+    }));
+
+    svg.getSharpPicture(new Sharp.PictureCallback({
+      onPictureReady: picture => {
+        const drawable = picture.getDrawable(this.nativeView);
+        this.nativeView.setImageDrawable(drawable);
+      }
+    }));
   }
 
   [common.imageSourceProperty.setNative](value: any) {
@@ -226,18 +199,5 @@ export class SVGImage extends common.SVGImage {
     }
 
     this._setNativeImage(image);
-  }
-
-  public _setOnSvgElement(onSvgElement : any) {
-    this._onSvgElement = onSvgElement;
-    this.tryToSetSvgProperties();
-  }
-
-  [common.onSvgElementProperty.setNative](value : any) {
-    if(!value) {
-      return;
-    }
-
-    this._setOnSvgElement(value);
   }
 }

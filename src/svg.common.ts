@@ -1,4 +1,5 @@
 import { View, Property } from "tns-core-modules/ui/core/view";
+import { LayoutBase } from "tns-core-modules/ui/layouts/layout-base";
 import * as utils from "tns-core-modules/utils/utils";
 import * as types from "tns-core-modules/utils/types"
 
@@ -16,7 +17,6 @@ export const srcProperty = new Property<SVGImage, boolean>({ name: SRC, defaultV
 export const imageSourceProperty = new Property<SVGImage, definition.ImageSourceSVG>({ name: IMAGE_SOURCE, defaultValue: undefined });
 export const isLoadingProperty = new Property<SVGImage, boolean>({ name: ISLOADING, defaultValue: false });
 export const loadModeProperty = new Property<SVGImage, string>({ name: LOAD_MODE, defaultValue: SYNC });
-export const onSvgElementProperty = new Property<SVGImage, any>({ name: 'honSvgElement', defaultValue: null, valueConverter: v => eval(v) });
 
 /**
 * Provides common options for creating a animation
@@ -29,7 +29,7 @@ export interface Options {
     src: string;
 }
 
-export class SVGImage extends View {
+export class SVGImage extends LayoutBase {
     src: any;
     imageSource: definition.ImageSourceSVG;
     isLoading: boolean;
@@ -163,4 +163,3 @@ srcProperty.register(SVGImage);
 imageSourceProperty.register(SVGImage);
 loadModeProperty.register(SVGImage);
 isLoadingProperty.register(SVGImage);
-onSvgElementProperty.register(SVGImage);
